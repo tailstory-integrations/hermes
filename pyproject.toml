@@ -1,6 +1,6 @@
 [project]
 name = "tailstory-hermes"
-version = "1.0.0"
+version = "1.1.0"
 description = "One interface over the shipping carriers' SDKs"
 authors = [
     { name = "Bradley Reynolds", email = "bradley.reynolds@tailstory.dev" },

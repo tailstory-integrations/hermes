@@ -43,3 +43,12 @@ def test_supports_says_which_carriers_it_was_given() -> None:
     assert hermes.supports("ups")
     assert not hermes.supports(Carrier.USPS)
     assert not hermes.supports("dhl")
+
+
+def test_a_shipstation_code_for_the_same_carrier_finds_it() -> None:
+    """ShipStation's other code for a carrier is tracked through that carrier."""
+    hermes = Hermes([_FakeCarrier()])
+
+    assert hermes.supports("ups_walleted")
+    assert hermes.track("ups_walleted", "1Z3").carrier is Carrier.UPS
+    assert not hermes.supports("stamps_com")

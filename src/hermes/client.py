@@ -19,9 +19,9 @@ class Hermes:
         self.carriers: dict[Carrier, CarrierAdapter] = {adapter.carrier: adapter for adapter in carriers}
 
     def supports(self, carrier: Carrier | str) -> bool:
-        """Say whether Hermes was given the carrier, by enum or by code such as ``"ups"``."""
+        """Say whether Hermes was given the carrier, by enum or by a code ``Carrier.from_code`` takes."""
         try:
-            return Carrier(carrier) in self.carriers
+            return Carrier.from_code(carrier) in self.carriers
         except ValueError:
             return False
 
@@ -31,7 +31,7 @@ class Hermes:
         Parameters
         ----------
         carrier
-            The carrier, by enum or by code such as ``"ups"``.
+            The carrier, by enum or by code such as ``"ups"`` or ShipStation's ``"ups_walleted"``.
         tracking_number
             The carrier's tracking number.
 
@@ -46,7 +46,7 @@ class Hermes:
         ValueError
             If ``carrier`` is no carrier Hermes knows.
         """
-        code = Carrier(carrier)
+        code = Carrier.from_code(carrier)
         adapter = self.carriers.get(code)
         if adapter is None:
             raise CarrierNotConfiguredError(code)

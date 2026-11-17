@@ -13,6 +13,28 @@ class Carrier(StrEnum):
     FEDEX = "fedex"
     USPS = "usps"
 
+    @classmethod
+    def from_code(cls, code: Carrier | str) -> Carrier:
+        """Return the carrier a code names, taking ShipStation's other codes for the same carrier.
+
+        ShipStation names one carrier several ways, by account type (``ups_walleted``) or by the
+        provider it buys postage through (``stamps_com``).
+
+        Raises
+        ------
+        ValueError
+            If the code names no carrier Hermes knows.
+        """
+        return cls(_ALIASES.get(str(code), code))
+
+
+#: ShipStation's other codes for the carriers above.
+_ALIASES = {
+    "ups_walleted": Carrier.UPS,
+    "fedex_walleted": Carrier.FEDEX,
+    "stamps_com": Carrier.USPS,
+}
+
 
 class TrackingStatus(StrEnum):
     """Where a package stands, in the eight codes ShipStation's API uses and Core stores."""

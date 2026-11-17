@@ -1,6 +1,9 @@
 Changelog
 =========
 
+- :release:`1.1.0 <17th November 2026>`
+- :feature:`-` ``Hermes.track`` and ``Hermes.supports`` take ShipStation's other codes for a carrier
+  (``ups_walleted``, ``fedex_walleted``, ``stamps_com``), through ``Carrier.from_code``
 - :release:`1.0.0 <21st October 2026>`
 - :feature:`-` Hermes is now the library over the carrier SDKs: ``Hermes([UPSCarrier(UPSClient(...))])``
   tracks a package with ``track(carrier, number)`` and answers a carrier-neutral ``Tracking``
