@@ -124,6 +124,24 @@ def test_status_types_map_to_hermes_statuses(kind: str | None, expected: Trackin
     assert tracking.status is expected
 
 
+def test_a_current_status_without_a_type_takes_the_newest_scans_type() -> None:
+    """UPS leaves the type off the current status, so the newest scan says where the package is."""
+    package = {
+        "trackingNumber": NUMBER,
+        "currentStatus": {"description": "Delivered", "code": "011"},
+        "activity": [
+            _activity("D", "20261023", "141500", "Chicago", "DELIVERED"),
+            _activity("I", "20261023", "080000", "Chicago", "Out For Delivery Today"),
+        ],
+    }
+
+    tracking = UPSCarrier(_FakeUPS(_answer(package))).track(NUMBER)  # type: ignore[arg-type]
+
+    assert tracking.status is TrackingStatus.DELIVERED
+    assert tracking.delivered_at is not None
+    assert tracking.carrier_status_code == "011"
+
+
 def test_a_package_without_a_current_status_is_unknown() -> None:
     """A package UPS gives no status for reads as unknown."""
     tracking = UPSCarrier(_FakeUPS(_answer({"trackingNumber": NUMBER}))).track(NUMBER)  # type: ignore[arg-type]

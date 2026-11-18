@@ -82,7 +82,10 @@ def read_package(package: Package, tracking_number: str) -> Tracking:
     """Read one UPS package's tracking into Hermes's record."""
     current = package.current_status
     events = [_event(activity) for activity in package.activity]
+    # UPS leaves the type off the current status, so the newest scan's type stands in for it.
     status = _status(current)
+    if status is TrackingStatus.UNKNOWN and (current is None or current.type is None) and events:
+        status = events[0].status
     return Tracking(
         carrier=Carrier.UPS,
         tracking_number=package.tracking_number or tracking_number,
