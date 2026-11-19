@@ -1,6 +1,9 @@
 Changelog
 =========
 
+- :release:`1.0.2 <19th November 2026>`
+- :support:`-` The repository and documentation links point at their new homes
+
 - :release:`1.0.0 <21st October 2026>`
 - :feature:`-` Hermes is now the library over the carrier SDKs: ``Hermes([UPSCarrier(UPSClient(...))])``
   tracks a package with ``track(carrier, number)`` and answers a carrier-neutral ``Tracking``
