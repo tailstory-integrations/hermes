@@ -44,7 +44,6 @@ class TrackingClient(Protocol):
 
     def get_tracking(self, tracking_number: str) -> TrackResponse:
         """Answer UPS's tracking record for a number."""
-        ...
 
 
 class UPSCarrier:
