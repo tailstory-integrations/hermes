@@ -2,7 +2,7 @@
 
 import datetime as dt
 from http import HTTPStatus
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 import niquests
 
@@ -10,8 +10,7 @@ from hermes.errors import CarrierError, TrackingNotFoundError
 from hermes.models import Carrier, Tracking, TrackingEvent, TrackingStatus
 
 if TYPE_CHECKING:
-    from ups_sdk import UPSClient
-    from ups_sdk.models import Activity, Package, Status
+    from ups_sdk.models import Activity, Package, Status, TrackResponse
 
 #: UPS's status types, as Hermes's statuses.
 STATUS_TYPES: dict[str, TrackingStatus] = {
@@ -40,12 +39,20 @@ def tracking_url(tracking_number: str) -> str:
     return f"https://www.ups.com/track?tracknum={tracking_number}"
 
 
+class TrackingClient(Protocol):
+    """What the adapter asks of a UPS client; ``ups_sdk.UPSClient`` fits."""
+
+    def get_tracking(self, tracking_number: str) -> TrackResponse:
+        """Answer UPS's tracking record for a number."""
+        ...
+
+
 class UPSCarrier:
     """UPS, read into Hermes's records."""
 
     carrier = Carrier.UPS
 
-    def __init__(self, client: UPSClient) -> None:
+    def __init__(self, client: TrackingClient) -> None:
         """Initialize the carrier with a signed-in UPS client."""
         self.client = client
 
