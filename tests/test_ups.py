@@ -71,7 +71,7 @@ DELIVERED: dict[str, Any] = {
 
 def test_an_in_transit_package_reads_its_status_expected_day_and_events() -> None:
     """The status maps to Hermes's code and the rescheduled day wins over the scheduled one."""
-    tracking = UPSCarrier(_FakeUPS(_answer(IN_TRANSIT))).track(NUMBER)  # type: ignore[arg-type]
+    tracking = UPSCarrier(_FakeUPS(_answer(IN_TRANSIT))).track(NUMBER)
 
     assert tracking.carrier is Carrier.UPS
     assert tracking.status is TrackingStatus.IN_TRANSIT
@@ -88,7 +88,7 @@ def test_an_in_transit_package_reads_its_status_expected_day_and_events() -> Non
 
 def test_a_delivered_package_reads_when_it_was_delivered() -> None:
     """The delivery scan's time is the delivered time, and no expected day is kept."""
-    tracking = UPSCarrier(_FakeUPS(_answer(DELIVERED))).track(NUMBER)  # type: ignore[arg-type]
+    tracking = UPSCarrier(_FakeUPS(_answer(DELIVERED))).track(NUMBER)
 
     assert tracking.status is TrackingStatus.DELIVERED
     assert tracking.delivered_at == dt.datetime(2026, 10, 23, 14, 15, tzinfo=CENTRAL)
@@ -99,7 +99,7 @@ def test_a_delivered_package_without_a_delivery_scan_falls_back_to_the_delivered
     """With no delivered scan, the delivered day at midnight stands in."""
     package = {**DELIVERED, "activity": []}
 
-    tracking = UPSCarrier(_FakeUPS(_answer(package))).track(NUMBER)  # type: ignore[arg-type]
+    tracking = UPSCarrier(_FakeUPS(_answer(package))).track(NUMBER)
 
     assert tracking.delivered_at == dt.datetime(2026, 10, 23)  # noqa: DTZ001 - UPS gives the day without an offset
 
@@ -119,7 +119,7 @@ def test_status_types_map_to_hermes_statuses(kind: str | None, expected: Trackin
     """Each UPS status type reads as a Hermes status, and an unknown one as unknown."""
     package = {"trackingNumber": NUMBER, "currentStatus": {"type": kind}}
 
-    tracking = UPSCarrier(_FakeUPS(_answer(package))).track(NUMBER)  # type: ignore[arg-type]
+    tracking = UPSCarrier(_FakeUPS(_answer(package))).track(NUMBER)
 
     assert tracking.status is expected
 
@@ -135,7 +135,7 @@ def test_a_current_status_without_a_type_takes_the_newest_scans_type() -> None:
         ],
     }
 
-    tracking = UPSCarrier(_FakeUPS(_answer(package))).track(NUMBER)  # type: ignore[arg-type]
+    tracking = UPSCarrier(_FakeUPS(_answer(package))).track(NUMBER)
 
     assert tracking.status is TrackingStatus.DELIVERED
     assert tracking.delivered_at is not None
@@ -144,7 +144,7 @@ def test_a_current_status_without_a_type_takes_the_newest_scans_type() -> None:
 
 def test_a_package_without_a_current_status_is_unknown() -> None:
     """A package UPS gives no status for reads as unknown."""
-    tracking = UPSCarrier(_FakeUPS(_answer({"trackingNumber": NUMBER}))).track(NUMBER)  # type: ignore[arg-type]
+    tracking = UPSCarrier(_FakeUPS(_answer({"trackingNumber": NUMBER}))).track(NUMBER)
 
     assert tracking.status is TrackingStatus.UNKNOWN
     assert tracking.last_event is None
@@ -159,7 +159,7 @@ def _http_error(status_code: int) -> HTTPError:
 def test_a_number_ups_does_not_know_is_not_found() -> None:
     """UPS's 404 raises TrackingNotFoundError."""
     with pytest.raises(TrackingNotFoundError) as raised:
-        UPSCarrier(_FakeUPS(error=_http_error(HTTPStatus.NOT_FOUND))).track(NUMBER)  # type: ignore[arg-type]
+        UPSCarrier(_FakeUPS(error=_http_error(HTTPStatus.NOT_FOUND))).track(NUMBER)
 
     assert raised.value.status_code == HTTPStatus.NOT_FOUND
 
@@ -167,7 +167,7 @@ def test_a_number_ups_does_not_know_is_not_found() -> None:
 def test_a_refused_request_is_a_carrier_error() -> None:
     """Any other UPS failure raises CarrierError with its status."""
     with pytest.raises(CarrierError) as raised:
-        UPSCarrier(_FakeUPS(error=_http_error(HTTPStatus.FORBIDDEN))).track(NUMBER)  # type: ignore[arg-type]
+        UPSCarrier(_FakeUPS(error=_http_error(HTTPStatus.FORBIDDEN))).track(NUMBER)
 
     assert not isinstance(raised.value, TrackingNotFoundError)
     assert raised.value.status_code == HTTPStatus.FORBIDDEN
@@ -176,7 +176,7 @@ def test_a_refused_request_is_a_carrier_error() -> None:
 def test_an_unreachable_ups_is_a_carrier_error() -> None:
     """A request that never got an answer raises CarrierError without a status."""
     with pytest.raises(CarrierError) as raised:
-        UPSCarrier(_FakeUPS(error=NiquestsConnectionError("Connection refused"))).track(NUMBER)  # type: ignore[arg-type]
+        UPSCarrier(_FakeUPS(error=NiquestsConnectionError("Connection refused"))).track(NUMBER)
 
     assert raised.value.status_code is None
 
@@ -186,7 +186,7 @@ def test_a_not_found_warning_is_not_found() -> None:
     answer = _answer(warnings=[{"code": "TW0001", "message": "Tracking Information Not Found"}])
 
     with pytest.raises(TrackingNotFoundError, match="Tracking Information Not Found"):
-        UPSCarrier(_FakeUPS(answer)).track(NUMBER)  # type: ignore[arg-type]
+        UPSCarrier(_FakeUPS(answer)).track(NUMBER)
 
 
 def test_another_warning_without_a_package_is_a_carrier_error() -> None:
@@ -194,7 +194,7 @@ def test_another_warning_without_a_package_is_a_carrier_error() -> None:
     answer = _answer(warnings=[{"code": "TW0002", "message": "Something else"}])
 
     with pytest.raises(CarrierError) as raised:
-        UPSCarrier(_FakeUPS(answer)).track(NUMBER)  # type: ignore[arg-type]
+        UPSCarrier(_FakeUPS(answer)).track(NUMBER)
 
     assert not isinstance(raised.value, TrackingNotFoundError)
 
@@ -202,4 +202,4 @@ def test_another_warning_without_a_package_is_a_carrier_error() -> None:
 def test_no_package_and_no_warning_is_not_found() -> None:
     """An answer with nothing in it raises TrackingNotFoundError."""
     with pytest.raises(TrackingNotFoundError):
-        UPSCarrier(_FakeUPS(_answer())).track(NUMBER)  # type: ignore[arg-type]
+        UPSCarrier(_FakeUPS(_answer())).track(NUMBER)
